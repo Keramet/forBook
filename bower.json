@@ -1,0 +1,22 @@
+{
+  "name": "my-app",
+  "version": "0.0.1",
+  "description": "myApp for work with AngularJS-book",
+  "main": "",
+  "authors": [
+    "evk"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "jQuery": "^3.0.0"
+  },
+  "devDependencies": {},
+  "ignore": [
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

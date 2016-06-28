@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+	<meta charset="UTF-8">
+	<title>myApp for work with AngularJS-book</title>
+	<link 
+		rel="stylesheet"
+		type="text/css" 
+		href="../bower_components/bootstrap/dist/css/bootstrap.css">
+	
+	<link rel="stylesheet" type="text/css" href="../dist/css/style.css">
+	<script src="../libs/angular.js"></script>
+	<script src="../dist/js/app.js"></script>
+
+</head>
+
+<body ng-controller="myCtrl as mC">
+	<div class="container">
+		<input 
+			ng-model="mC.name"
+			class="form-control"
+			type="text">
+		
+		Hello, {{mC.name}}!<br>
+		<button
+			class="btn btn-default"
+			ng-click="mC.sayHello()">
+			Приветствие
+		</button>
+	</div>
+	<hr>
+	<ul>
+		<li ng-repeat="country in mC.data">
+			Страна: {{country.name}}.
+			Население: {{country.population}}.
+			Доля: {{mC.getPart(country.population) | number:2}}%.
+		</li>
+	</ul>
+	<hr>
+	<div class="container" ng-controller="sendTFCtrl as stfC">
+		<form name="sendTextForm">
+			Осталось символов:
+			<span
+				ng-class="{'bg-danger' : stfC.lessThan()}">
+				{{stfC.left()}}
+			</span><br>
+
+			<textarea 
+				ng-model="stfC.msg"
+				class="form-control">
+			</textarea><br>
+			
+			<button 
+				ng-click="stfC.send()"
+				ng-disabled="stfC.lessThan(1)"
+				class="btn btn-success">
+				Отправить
+			</button>
+			<button
+				ng-click="stfC.clear()"
+				class="btn btn-danger">
+				Очистить
+			</button>
+
+		</form>
+	</div>
+	
+	
+</body>
+</html>
