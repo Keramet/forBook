@@ -12,7 +12,9 @@
     "bootstrap": "^3.3.6",
     "jQuery": "^3.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "angular-mocks": "^1.5.7"
+  },
   "ignore": [
     "node_modules",
     "bower_components",

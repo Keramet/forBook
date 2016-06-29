@@ -37,6 +37,7 @@
 		</li>
 	</ul>
 	<hr>
+
 	<div class="container" ng-controller="sendTFCtrl as stfC">
 		<form name="sendTextForm">
 			Осталось символов:
@@ -60,6 +61,11 @@
 				ng-click="stfC.clear()"
 				class="btn btn-danger">
 				Очистить
+			</button>
+			<button
+				ng-click="stfC.show()"
+				class="btn btn-info">
+				Показать архив
 			</button>
 
 		</form>

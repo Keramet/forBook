@@ -5,7 +5,7 @@
   angular
 	.module( "myApp" )
 		.controller( "myCtrl",  myCtrl )
-		.controller( "sendTFCtrl",  ['$timeout', sendTFCtrl] );
+		.controller( "sendTFCtrl",  ['$timeout', 'messagesArchive', sendTFCtrl] );
 
 
 	function myCtrl () {
@@ -25,20 +25,28 @@
 	} 
 
 
-	function sendTFCtrl ($timeout) {
+	function sendTFCtrl ($timeout, messagesArchive) {
 		const  self = this,
 			MAX_LEN = 100;
 
+		// self.archive  = messagesArchive;
 		self.clear    = () => self.msg = "";
 		self.left     = () => MAX_LEN - self.msg.length;
 		self.lessThan = (n=10) => self.left() < n ? true : false;
+		self.show	  = () => {
+			console.log( `Messages in archive: ${messagesArchive.count}.`);
+			console.log( messagesArchive.getArchived() );
+
+		}
 		self.send     = () => {
+			messagesArchive.archive( self.msg );
 			console.log("Отправка сообщения...");
 			$timeout( () => {
-				console.log(`Сообщение [${self.msg}] отправлено!`);
+				console.log(`Сообщение \"${self.msg}\" отправлено!`);
 				self.clear();
 			}, 2000 );
 		}
+		
 		self.clear();
 	}
 

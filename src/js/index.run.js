@@ -1,4 +1,5 @@
-(function() {
+
+;(function() {		//	index.run.js
   'use strict';
 
   angular
