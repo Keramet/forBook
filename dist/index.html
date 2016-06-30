@@ -27,6 +27,36 @@
 			ng-click="mC.sayHello()">
 			Приветствие
 		</button>
+		<button
+			class="btn btn-info"
+			ng-click="mC.addUser()">
+			Добавить пользователя
+		</button><br>
+		<label>
+			ID юзера:
+			<input
+				type="text"
+				ng-model='mC.id'
+				class="form-control"
+			>
+		</label>
+		<button
+			class="btn btn-danger"
+			ng-click="mC.delUser()">
+			Удалить пользователя
+		</button><br>
+
+		<button
+			class="btn"
+			ng-click="mC.jsonp(mC.name)">
+			JSONP
+		</button> {{mC.greeting}} <br>
+		<button
+			class="btn btn-warning"
+			ng-click="mC.async()">
+			Async
+		</button> {{mC.greeting}} <br>
+
 	</div>
 	<hr>
 	<ul>

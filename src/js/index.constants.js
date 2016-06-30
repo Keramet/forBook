@@ -3,8 +3,8 @@
   'use strict';
 
   angular
-    .module('myApp')
-    	.constant('FB_URL', "https://my-anapp.firebaseio.com/");
+    .module( 'myApp' )
+    	.constant( 'MY_KEY', '6oPi7bI8kQu6-WgcmK5-v1AbnKl63Ma4' );
 
 })();
 

@@ -54,8 +54,8 @@
   'use strict';
 
   angular
-    .module('myApp')
-    	.constant('FB_URL', "https://my-anapp.firebaseio.com/");
+    .module( 'myApp' )
+    	.constant( 'MY_KEY', '6oPi7bI8kQu6-WgcmK5-v1AbnKl63Ma4' );
 
 })();
 
@@ -82,11 +82,11 @@
 
   angular
 	.module( "myApp" )
-		.controller( "myCtrl",  myCtrl )
+		.controller( "myCtrl",  ['$http', '$timeout', 'MY_KEY',  myCtrl] )
 		.controller( "sendTFCtrl",  ['$timeout', 'messagesArchive', sendTFCtrl] );
 
 
-	function myCtrl () {
+	function myCtrl ($http, $timeout, MY_KEY) {
 		const self = this;		
 	
 		self.data = [
@@ -100,14 +100,73 @@
 
 		self.sayHello = () => console.log(self.name);
 		self.getPart  = population => 100 * population / self.total;
-	} 
+		
+		self.addUser = () => {
+			let url  = 'https://api.mongolab.com/api/1/databases/evkdb/collections/users',
+				user = { name: self.name,
+						 prop: "test value1" },
+				conf = { params: {apiKey : MY_KEY} };
+
+			console.log('Сохранение информации о пользователе.....');
+			$http.post(url, user, conf)
+				.then( function (resp) {
+					console.log(`...[ ${resp.statusText} ]   Ответ сервера:`, resp);
+					// console.dir(params);
+				})
+				.catch( function (err) {
+					console.error(`Данные не сохранены.....[${err.statusText}]!  Ответ сервера:`, err);
+				});
+		}
+
+		self.delUser = () => {
+			let url  = 'https://api.mongolab.com/api/1/databases/evkdb/collections/users/'
+					   + self.id,
+				conf = { params: {apiKey : MY_KEY} };
+
+			$http.delete(url, conf)
+				.then( resp => {
+					console.dir( resp );
+					console.log( resp.headers() );
+					self.id = "";	
+				})
+				.catch( err => console.dir(err) );		   
+		}
+
+		self.jsonp = (nameValue) => {
+			let url = 'http://angularjs.org/greet.php?callback=JSON_CALLBACK'; 
+			$http.jsonp(url, { params: {name : nameValue} })
+				.then( resp => self.greeting = resp.data.greeting )
+				.catch( err => console.dir(err) );
+		}
+
+		self.async = () => {
+			let prom = new Promise( function (resolve, reject) {
+				let rand = 0.5553;// Math.random();
+					console.log( +rand.toFixed(2) );
+				$timeout( () => {
+					rand > 0.5 ? resolve("+") : reject("-");
+				}, 2000 );
+			});
+
+			prom.then( (data) => console.info('First then (2sec). data: ', data) );
+
+			$timeout( () => {
+				prom.then( (data) => console.info('Second then (4sec). data: ', data) );
+				prom.catch( (err) => console.warn('Catch (4sec). err: ', err) );
+			}, 4000 );
+
+
+		}
+
+		 
+
+	}// end of  myCtrl 
 
 
 	function sendTFCtrl ($timeout, messagesArchive) {
 		const  self = this,
 			MAX_LEN = 100;
 
-		// self.archive  = messagesArchive;
 		self.clear    = () => self.msg = "";
 		self.left     = () => MAX_LEN - self.msg.length;
 		self.lessThan = (n=10) => self.left() < n ? true : false;
