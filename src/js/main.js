@@ -4,11 +4,11 @@
 
   angular
 	.module( "myApp" )
-		.controller( "myCtrl",  ['$http', '$timeout', 'MY_KEY',  myCtrl] )
+		.controller( "myCtrl",  ['$http', '$timeout', 'MY_KEY', 'Users',  myCtrl] )
 		.controller( "sendTFCtrl",  ['$timeout', 'messagesArchive', sendTFCtrl] );
 
 
-	function myCtrl ($http, $timeout, MY_KEY) {
+	function myCtrl ($http, $timeout, MY_KEY, Users) {
 		const self = this;		
 	
 		self.data = [
@@ -76,9 +76,9 @@
 				prom.then( (data) => console.info('Second then (4sec). data: ', data) );
 				prom.catch( (err) => console.warn('Catch (4sec). err: ', err) );
 			}, 4000 );
-
-
 		}
+
+		self.allUsers = () => console.dir( Users.query() );
 
 		 
 

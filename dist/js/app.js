@@ -3,7 +3,7 @@
   'use strict';
 
   angular
-    .module( "myApp", [] );	
+    .module( "myApp", [ 'ngResource' ] );	
 
 })();
 
@@ -82,11 +82,11 @@
 
   angular
 	.module( "myApp" )
-		.controller( "myCtrl",  ['$http', '$timeout', 'MY_KEY',  myCtrl] )
+		.controller( "myCtrl",  ['$http', '$timeout', 'MY_KEY', 'Users',  myCtrl] )
 		.controller( "sendTFCtrl",  ['$timeout', 'messagesArchive', sendTFCtrl] );
 
 
-	function myCtrl ($http, $timeout, MY_KEY) {
+	function myCtrl ($http, $timeout, MY_KEY, Users) {
 		const self = this;		
 	
 		self.data = [
@@ -154,9 +154,9 @@
 				prom.then( (data) => console.info('Second then (4sec). data: ', data) );
 				prom.catch( (err) => console.warn('Catch (4sec). err: ', err) );
 			}, 4000 );
-
-
 		}
+
+		self.allUsers = () => console.dir( Users.query() );
 
 		 
 
@@ -205,5 +205,20 @@
     			}
 			}
 		});
+
+})();
+
+
+;(function () {		//	resource.js
+  'use strict';
+
+  angular
+    .module('myApp')
+    	.factory('Users', [ '$resource', 'MY_KEY',  function ($resource, MY_KEY) {
+    		let url = 'https://api.mongolab.com/api/1/databases/evkdb/collections/users/:id';
+    		
+    		return $resource( url, { apiKey : MY_KEY,
+    								     id : '@_id.$oid' } );
+    	} ]);
 
 })();
