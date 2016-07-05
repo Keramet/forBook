@@ -37,12 +37,12 @@
   'use strict';
 
   angular
-    .module('myApp')
-        .config(config);
+    .module( 'myApp' )
+        .config( config );
 
 
   /** @ngInject */
-  function config($logProvider, $locationProvider) {
+  function config ($logProvider, $locationProvider) {
     $logProvider.debugEnabled(true);
     $locationProvider.html5Mode(true);
   }
@@ -55,8 +55,9 @@
 
   angular
     .module( 'myApp' )
-    	.constant( 'MY_KEY', '6oPi7bI8kQu6-WgcmK5-v1AbnKl63Ma4' );
-
+    	.constant( 'MY_KEY', '6oPi7bI8kQu6-WgcmK5-v1AbnKl63Ma4' )
+    	.constant( 'URL_DB', 'https://api.mongolab.com/api/1/databases/evkdb/' );
+    	// .constant( 'MY_KEY', '6oPi7bI8kQu6-WgcmK5-v1AbnKl63Ma4' );
 })();
 
 
@@ -77,13 +78,23 @@
 })();
 
 
-;(function() {
+;(function() {		// main.js
   'use strict';
 
   angular
-	.module( "myApp" )
-		.controller( "myCtrl",  ['$http', '$timeout', 'MY_KEY', 'Users',  myCtrl] )
-		.controller( "sendTFCtrl",  ['$timeout', 'messagesArchive', sendTFCtrl] );
+	.module( 'myApp' )
+		.controller( 'myCtrl',  [
+			'$http',
+			'$timeout',
+			'MY_KEY',
+			'Users',
+			 myCtrl
+		])
+		.controller( "sendTFCtrl",  [
+			'$timeout',
+			'messagesArchive',
+			sendTFCtrl
+		]);
 
 
 	function myCtrl ($http, $timeout, MY_KEY, Users) {
@@ -141,7 +152,7 @@
 
 		self.async = () => {
 			let prom = new Promise( function (resolve, reject) {
-				let rand = 0.5553;// Math.random();
+				let rand = Math.random();
 					console.log( +rand.toFixed(2) );
 				$timeout( () => {
 					rand > 0.5 ? resolve("+") : reject("-");
@@ -156,8 +167,41 @@
 			}, 4000 );
 		}
 
-		self.allUsers = () => console.dir( Users.query() );
+		self.allUsers = () => {
+			let resp   = Users.query(),
+				to, ms = 4000;
 
+			console.time("time since query was created");
+			console.log(`resp [=Users.query()] just created: ${ JSON.stringify(resp) }.`);
+
+			resp.$promise
+				.then( data => {	// resp === data
+					console.timeEnd("time since query was created");
+					self.allUsersData = data;
+					console.log(`Users.query (=resp. resp === data) resolved with following data:  ${ JSON.stringify(data) }.`);
+				})
+				// .then( data => console.log('resolve! data:', data) )
+				.then( () => $timeout.cancel(to) )
+				.catch( err => console.log('catch: We got the error: ', err) );
+
+			to = $timeout( () => {
+				console.log( `${ Math.floor(ms/1000) }sek has gone...     resp.$resolved: ${ resp.$resolved }.`);
+				if ( !resp.$resolved ) {
+					resp.$cancelRequest();
+					console.log('Request canceled by time!   "self.allUsersData" set to ', self.allUsersData = null);	
+				}		
+			}, ms );
+		}; // end of  self.allUsers
+
+		self.cl = () => console.log( self.allUsersData );
+
+		self.showTable = () => {
+			let isShow = (self.allUsersData && self.allUsersData > 0) ? true : false;
+			debugger;
+			console.log(`isShow:  ${ isShow }.`);
+			console.log(`self.allUsersData:  ${ self.allUsersData }.`);
+			return isShow;
+		}
 		 
 
 	}// end of  myCtrl 
@@ -213,12 +257,17 @@
   'use strict';
 
   angular
-    .module('myApp')
-    	.factory('Users', [ '$resource', 'MY_KEY',  function ($resource, MY_KEY) {
-    		let url = 'https://api.mongolab.com/api/1/databases/evkdb/collections/users/:id';
-    		
-    		return $resource( url, { apiKey : MY_KEY,
-    								     id : '@_id.$oid' } );
-    	} ]);
+    .module( 'myApp' )
+    	.factory( 'Users', [ '$resource', 'MY_KEY', 'URL_DB',  Users ] );
+
+
+    	function Users ($resource, MY_KEY, URL_DB) {
+    		let url = URL_DB + 'collections/users/:id',
+    			  q = {method: 'get', isArray: true, cancellable: true};
+    		// let url = 'https://api.mongolab.com/api/1/databases/evkdb/collections/users';
+   
+    		return $resource( url, { id     : '@_id.$oid', 
+    						         apiKey : MY_KEY     }, { query: q } );
+    	}
 
 })();

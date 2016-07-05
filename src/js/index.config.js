@@ -3,12 +3,12 @@
   'use strict';
 
   angular
-    .module('myApp')
-        .config(config);
+    .module( 'myApp' )
+        .config( config );
 
 
   /** @ngInject */
-  function config($logProvider, $locationProvider) {
+  function config ($logProvider, $locationProvider) {
     $logProvider.debugEnabled(true);
     $locationProvider.html5Mode(true);
   }

@@ -3,17 +3,14 @@
 <head>
 	<meta charset="UTF-8">
 	<title>myApp for work with AngularJS-book</title>
-	<link 
-		rel="stylesheet"
-		type="text/css" 
-		href="../bower_components/bootstrap/dist/css/bootstrap.css">
-	
+
+	<link rel="stylesheet" type="text/css" href="../bower_components/bootstrap/dist/css/bootstrap.css">
 	<link rel="stylesheet" type="text/css" href="../dist/css/style.css">
 	
 	<script src="../libs/angular.js"></script>
 	<script src="../libs/angular-resource.js"></script>
-	<script src="../dist/js/app.js"></script>
 
+	<script src="../dist/js/app.js"></script>
 </head>
 
 <body ng-controller="myCtrl as mC">
@@ -48,11 +45,35 @@
 			ng-click="mC.delUser()">
 			Удалить пользователя
 		</button><br>
+		<hr>
 		<button
-			class="btn btn-warning"
+			class="btn btn-primary"
 			ng-click="mC.allUsers()">
 			Все пользователи
+		</button>
+		<button
+			class="btn"
+			ng-click="mC.showTable()">
+			self.showTable
 		</button><br>
+		<table class="table" ng-if="mC.showTable()">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Name</th>
+					<th>Prop</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="user in mC.allUserData">
+					<td>{{user._id}}</td>
+					<td>{{user.name}}</td>
+					<td>{{user}}</td>
+
+				</tr>
+			</tbody>	
+		</table>
+		<hr>
 		<button
 			class="btn"
 			ng-click="mC.jsonp(mC.name)">
