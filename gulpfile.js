@@ -9,9 +9,9 @@ wrench.readdirSyncRecursive('./gulp')
 
 
 gulp.task('watch', function () {
-	gulp.watch( 'src/css/**/*.css', ['css']  );
-    gulp.watch( 'src/js/**/*.js',   ['js']   );
-    gulp.watch( 'src/index.html',   ['html'] );
+	gulp.watch( conf.paths.css,  ['css']  );
+    gulp.watch( conf.paths.js,   ['js']   );
+    gulp.watch( conf.paths.html, ['html'] );
     
 });
 
@@ -19,13 +19,4 @@ gulp.task('watch', function () {
 gulp.task('default', ['css', 'html', 'js', 'watch' ], function () {
     console.log("End of 'default' task...");
 });
-
-
-// liveReload = require('gulp-live-reload');
-// var server = liveReload();
-// gulp.watch(['src/**']).on('change', function(file) {
-//     server.changed(file.path);
-// })
-
-
 

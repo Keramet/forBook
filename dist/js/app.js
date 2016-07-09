@@ -8,7 +8,6 @@
 })();
 
 
-
 ;(function() {		// archiveSrc.js
   'use strict';
 
@@ -55,11 +54,13 @@
 
   angular
     .module( 'myApp' )
-    	.constant( 'MY_KEY', '6oPi7bI8kQu6-WgcmK5-v1AbnKl63Ma4' )
-    	.constant( 'URL_DB', 'https://api.mongolab.com/api/1/databases/evkdb/' );
-    	// .constant( 'MY_KEY', '6oPi7bI8kQu6-WgcmK5-v1AbnKl63Ma4' );
+    	// .constant( 'MY_KEY', '6oPi7bI8kQu6-WgcmK5-v1AbnKl63Ma4' )
+    	// .constant( 'URL_DB', 'https://api.mongolab.com/api/1/databases/evkdb/' )
+    	.constant( 'DB_CONF', {
+    		key: '6oPi7bI8kQu6-WgcmK5-v1AbnKl63Ma4',
+    		url: 'https://api.mongolab.com/api/1/databases/evkdb/'
+    	});
 })();
-
 
 
 ;(function() {		//	index.run.js
@@ -86,42 +87,28 @@
 		.controller( 'myCtrl',  [
 			'$http',
 			'$timeout',
-			'MY_KEY',
+			'DB_CONF',
 			'Users',
+			'UsersJSON',
 			 myCtrl
 		])
-		.controller( "sendTFCtrl",  [
-			'$timeout',
-			'messagesArchive',
-			sendTFCtrl
-		]);
 
 
-	function myCtrl ($http, $timeout, MY_KEY, Users) {
+	function myCtrl ($http, $timeout, DB_CONF, Users, UsersJSON) {
 		const self = this;		
-	
-		self.data = [
-			{ name: "Ukraine", population:  40 },
-			{ name: "France",  population:  50 },
-			{ name: "USA",     population:  90 },
-			{ name: "Russia",  population: 140 },
-		];
-		self.total = 6000;
-		self.name  = "Gen";
-
-		self.sayHello = () => console.log(self.name);
-		self.getPart  = population => 100 * population / self.total;
 		
-		self.addUser = () => {
-			let url  = 'https://api.mongolab.com/api/1/databases/evkdb/collections/users',
+		self.addUserHttp = () => {
+			let url  = DB_CONF.url + 'collections/users',
 				user = { name: self.name,
 						 prop: "test value1" },
-				conf = { params: {apiKey : MY_KEY} };
+		 		conf = { params: {apiKey : DB_CONF.key} };
 
 			console.log('Сохранение информации о пользователе.....');
 			$http.post(url, user, conf)
 				.then( function (resp) {
-					console.log(`...[ ${resp.statusText} ]   Ответ сервера:`, resp);
+					console.log(`..... [ ${resp.statusText} ]`);
+					console.log('Ответ сервера: ', resp);
+					self.name = "";
 					// console.dir(params);
 				})
 				.catch( function (err) {
@@ -129,18 +116,15 @@
 				});
 		}
 
-		self.delUser = () => {
-			let url  = 'https://api.mongolab.com/api/1/databases/evkdb/collections/users/'
-					   + self.id,
-				conf = { params: {apiKey : MY_KEY} };
+		self.addUserRes = () => {
+			let newUser = { name: self.name, prop: "test value2" };
 
-			$http.delete(url, conf)
-				.then( resp => {
-					console.dir( resp );
-					console.log( resp.headers() );
-					self.id = "";	
-				})
-				.catch( err => console.dir(err) );		   
+			Users.save(newUser).$promise
+				.then( data => { 
+					if (self.allUsersData) self.allUsersData.push( data );
+					console.dir(data);
+					self.name = "";
+				});
 		}
 
 		self.jsonp = (nameValue) => {
@@ -167,72 +151,87 @@
 			}, 4000 );
 		}
 
-		self.allUsers = () => {
-			let resp   = Users.query(),
-				to, ms = 4000;
+
+		self.allUsersHttp = () => {
+			console.log('allUsersHttp');
+			// let url  = DB_CONF.url + 'collections/users',
+			// 	user = { name: self.name,
+			// 			 prop: "test value1" },
+		 // 		conf = { params: {apiKey : DB_CONF.key} };
+
+			// console.log('Сохранение информации о пользователе.....');
+			// $http.post(url, user, conf)
+			// 	.then( function (resp) {
+			// 		console.log(`..... [ ${resp.statusText} ]`);
+			// 		console.log('Ответ сервера: ', resp);
+			// 		self.name = "";
+			// 		// console.dir(params);
+			// 	})
+			// 	.catch( function (err) {
+			// 		console.error(`Данные не сохранены.....[${err.statusText}]!  Ответ сервера:`, err);
+			// 	});
+		}
+
+
+		self.allUsersRes = () => {
+			let to, ms = 4000;
+
+			self.usersUrl = 'https://mlab.com/databases/evkdb/collections/users?_id=';
 
 			console.time("time since query was created");
-			console.log(`resp [=Users.query()] just created: ${ JSON.stringify(resp) }.`);
-
-			resp.$promise
-				.then( data => {	// resp === data
+			self.allUsersData = Users.query();
+			self.allUsersData.$promise
+				.then( () => {
 					console.timeEnd("time since query was created");
-					self.allUsersData = data;
-					console.log(`Users.query (=resp. resp === data) resolved with following data:  ${ JSON.stringify(data) }.`);
+					$timeout.cancel(to);
 				})
-				// .then( data => console.log('resolve! data:', data) )
-				.then( () => $timeout.cancel(to) )
 				.catch( err => console.log('catch: We got the error: ', err) );
 
 			to = $timeout( () => {
-				console.log( `${ Math.floor(ms/1000) }sek has gone...     resp.$resolved: ${ resp.$resolved }.`);
-				if ( !resp.$resolved ) {
-					resp.$cancelRequest();
-					console.log('Request canceled by time!   "self.allUsersData" set to ', self.allUsersData = null);	
+				console.log( `${ Math.floor(ms/1000) }sek has gone...     self.allUsersData.$resolved: ${ self.allUsersData.$resolved }.`);
+				if ( !self.allUsersData.$resolved ) {
+					self.allUsersData.$cancelRequest();
+					console.log('Request canceled by time!   "self.allUsersData" is: ', self.allUsersData);	
 				}		
 			}, ms );
+
 		}; // end of  self.allUsers
 
-		self.cl = () => console.log( self.allUsersData );
-
-		self.showTable = () => {
-			let isShow = (self.allUsersData && self.allUsersData > 0) ? true : false;
-			debugger;
-			console.log(`isShow:  ${ isShow }.`);
-			console.log(`self.allUsersData:  ${ self.allUsersData }.`);
-			return isShow;
+		self.updateUser = user => {
+			user.name = user.name.toUpperCase();
+			user.$update();
+			console.dir(user);
 		}
-		 
+
+		self.deleteUser = (user, idx) => {
+			Users.delete({}, user).$promise
+				.then( () => self.allUsersData.splice(idx, 1) );
+		}
+
+		self.cl = () => {
+			console.log( 'typeof self.allUsersData: ', typeof self.allUsersData, self.allUsersData );
+		};
+
+		self.showTable = () => (self.allUsersData && self.allUsersData.length > 0);
+		
+		self.getUsersJSON = () => self.usersJSON = UsersJSON.query();
+
+		self.usersJSONclick = user => {
+			console.dir(user);
+
+			let updateUser = UsersJSON.get({id: user.id});
+
+			updateUser.$promise
+				.then( () => {
+					updateUser.name = "EUGEN";
+					updateUser.$update();
+				});
+			$timeout( () => console.log( UsersJSON.get({id: user.id}) ), 3000 );
+		}
 
 	}// end of  myCtrl 
 
-
-	function sendTFCtrl ($timeout, messagesArchive) {
-		const  self = this,
-			MAX_LEN = 100;
-
-		self.clear    = () => self.msg = "";
-		self.left     = () => MAX_LEN - self.msg.length;
-		self.lessThan = (n=10) => self.left() < n ? true : false;
-		self.show	  = () => {
-			console.log( `Messages in archive: ${messagesArchive.count}.`);
-			console.log( messagesArchive.getArchived() );
-
-		}
-		self.send     = () => {
-			messagesArchive.archive( self.msg );
-			console.log("Отправка сообщения...");
-			$timeout( () => {
-				console.log(`Сообщение \"${self.msg}\" отправлено!`);
-				self.clear();
-			}, 2000 );
-		}
-		
-		self.clear();
-	}
-
 })();
-
 
 
 ;(function() {
@@ -258,16 +257,63 @@
 
   angular
     .module( 'myApp' )
-    	.factory( 'Users', [ '$resource', 'MY_KEY', 'URL_DB',  Users ] );
+    	.factory( 'Users',     ['$resource', 'DB_CONF', Users] )
+    	.factory( 'UsersJSON', ['$resource', UsersJSON] );
 
 
-    	function Users ($resource, MY_KEY, URL_DB) {
-    		let url = URL_DB + 'collections/users/:id',
-    			  q = {method: 'get', isArray: true, cancellable: true};
-    		// let url = 'https://api.mongolab.com/api/1/databases/evkdb/collections/users';
+    	function Users ($resource, DB_CONF) {
+    		let url = DB_CONF.url + 'collections/users/:id';
    
-    		return $resource( url, { id     : '@_id.$oid', 
-    						         apiKey : MY_KEY     }, { query: q } );
+    		return $resource( 
+    			url, 
+    			{ id     : '@_id.$oid', 
+    			  apiKey : DB_CONF.key },
+    			{ query  : {method: 'GET', isArray: true, cancellable: true},
+    			  update : {method: 'PUT'} }
+    		);
     	}
+
+    	function UsersJSON ($resource) { 
+    		let url = 'http://jsonplaceholder.typicode.com/users/:id';
+   
+    		return $resource(url, { id: '@id' }, {update: {method:'PUT'}});
+    	}
+
+})();
+
+
+;(function() {		// sendTFCtrl.js
+  'use strict';
+
+  angular
+	.module( 'myApp' )
+		.controller( 'sendTFCtrl',  [
+			'$timeout',
+			'messagesArchive',
+			sendTFCtrl
+		]);
+
+
+	function sendTFCtrl ($timeout, messagesArchive) {
+		const  self = this,
+			MAX_LEN = 100;
+
+		self.clear    = () => self.msg = "";
+		self.left     = () => MAX_LEN - self.msg.length;
+		self.lessThan = (n=10) => self.left() < n ? true : false;
+		self.show	  = () => {
+			console.log( `Messages in archive: ${messagesArchive.count}.`);
+			console.log( messagesArchive.getArchived() );
+		}
+		self.send     = () => {
+			messagesArchive.archive( self.msg );
+			console.log("Отправка сообщения...");
+			$timeout( () => {
+				console.log(`Сообщение \"${self.msg}\" отправлено!`);
+				self.clear();
+			}, 2000 );
+		}
+		self.clear();
+	}
 
 })();

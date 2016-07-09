@@ -6,4 +6,3 @@
     .module( "myApp", [ 'ngResource' ] );	
 
 })();
-

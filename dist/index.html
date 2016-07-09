@@ -14,24 +14,28 @@
 </head>
 
 <body ng-controller="myCtrl as mC">
-	<span class="error-message">Какая-то хрень...  :(</span>
+
 	<div class="container">
-		<input 
-			ng-model="mC.name"
-			class="form-control"
-			type="text">
-		
-		Hello, {{mC.name}}!<br>
-		<button
-			class="btn btn-default"
-			ng-click="mC.sayHello()">
-			Приветствие
-		</button>
+		<label>
+			<input 
+				ng-model="mC.name"
+				type="text"
+				class="form-control"
+			>
+		</label>
 		<button
 			class="btn btn-info"
-			ng-click="mC.addUser()">
-			Добавить пользователя
-		</button><br>
+			ng-click="mC.addUserHttp()">
+			Добавить юзера ($http)
+		</button>
+		
+		<button
+			class="btn btn-info"
+			ng-click="mC.addUserRes()">
+			+ пользователь ($res)
+		</button>
+		<br>
+		
 		<label>
 			ID юзера:
 			<input
@@ -40,21 +44,21 @@
 				class="form-control"
 			>
 		</label>
-		<button
-			class="btn btn-danger"
-			ng-click="mC.delUser()">
-			Удалить пользователя
-		</button><br>
 		<hr>
 		<button
 			class="btn btn-primary"
-			ng-click="mC.allUsers()">
-			Все пользователи
+			ng-click="mC.allUsersHttp()">
+			Все пользователи ($http)
+		</button>
+		<button
+			class="btn btn-primary"
+			ng-click="mC.allUsersRes()">
+			Все пользователи ($res)
 		</button>
 		<button
 			class="btn"
-			ng-click="mC.showTable()">
-			self.showTable
+			ng-click="mC.cl()">
+			self.cl
 		</button><br>
 		<table class="table" ng-if="mC.showTable()">
 			<thead>
@@ -62,14 +66,30 @@
 					<th>ID</th>
 					<th>Name</th>
 					<th>Prop</th>
+					<th>Action</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr ng-repeat="user in mC.allUserData">
-					<td>{{user._id}}</td>
-					<td>{{user.name}}</td>
-					<td>{{user}}</td>
+				<tr ng-repeat="user in mC.allUsersData">
+					<td><small>{{user._id.$oid}}</small></td>
+					<td>
+						<a ng-href="{{mC.usersUrl + user._id.$oid}}" target="_blank">{{user.name}}</a>
+					</td>
+					<td>{{user.prop}}</td>
+					<td>
+						<button 
+							ng-click="mC.updateUser(user)"
+							class="btn btn-default">
+							Правка
+						</button>
+						<button 
+							ng-click="mC.deleteUser(user, $index)"
+							class="btn btn-danger"
+							title="Удалить юзера '{{user.name}}'">
+							X
+						</button>
 
+					</td>
 				</tr>
 			</tbody>	
 		</table>
@@ -84,17 +104,33 @@
 			ng-click="mC.async()">
 			Async
 		</button> {{mC.greeting}} <br>
+		<hr>
+		<table class="table">
+			<tr ng-repeat="u in mC.usersJSON">
+				<td>{{u.id}}</td>
+				<td>{{u.name}}</td>
+				<td>{{u.email}}</td>
+				<td>{{u.company.name}}</td>
+				<td>
+					<button
+						ng-click="mC.usersJSONclick(u)" 
+						class="btn btn-info"
+						title="Addition information" >
+						...
+					</button> 
+				</td>
+			</tr>
+		</table>
+		<button
+			class="btn btn-primary"
+			ng-click="mC.getUsersJSON()">
+			UsersJSON
+		</button>
+		<hr>
 
 	</div>
 	<hr>
-	<ul>
-		<li ng-repeat="country in mC.data">
-			Страна: {{country.name}}.
-			Население: {{country.population}}.
-			Доля: {{mC.getPart(country.population) | number:2}}%.
-		</li>
-	</ul>
-	<hr>
+
 
 	<div class="container" ng-controller="sendTFCtrl as stfC">
 		<form name="sendTextForm">

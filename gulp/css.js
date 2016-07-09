@@ -1,3 +1,6 @@
+
+require('./_conf');
+
 const   gulp    = require('gulp'),
      // plugins = require('gulp-load-plugins')();
       concatCss = require('gulp-concat-css'),
@@ -7,7 +10,7 @@ const   gulp    = require('gulp'),
 
  
 gulp.task('css', function () {
-  return gulp.src('src/css/**/*.css')
+  return gulp.src( conf.paths.css )
     .pipe( concatCss('style.css') )
     .pipe( gulp.dest('dist/css/') )
     .pipe( minifyCSS() )

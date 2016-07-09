@@ -4,16 +4,26 @@
 
   angular
     .module( 'myApp' )
-    	.factory( 'Users', [ '$resource', 'MY_KEY', 'URL_DB',  Users ] );
+    	.factory( 'Users',     ['$resource', 'DB_CONF', Users] )
+    	.factory( 'UsersJSON', ['$resource', UsersJSON] );
 
 
-    	function Users ($resource, MY_KEY, URL_DB) {
-    		let url = URL_DB + 'collections/users/:id',
-    			  q = {method: 'get', isArray: true, cancellable: true};
-    		// let url = 'https://api.mongolab.com/api/1/databases/evkdb/collections/users';
+    	function Users ($resource, DB_CONF) {
+    		let url = DB_CONF.url + 'collections/users/:id';
    
-    		return $resource( url, { id     : '@_id.$oid', 
-    						         apiKey : MY_KEY     }, { query: q } );
+    		return $resource( 
+    			url, 
+    			{ id     : '@_id.$oid', 
+    			  apiKey : DB_CONF.key },
+    			{ query  : {method: 'GET', isArray: true, cancellable: true},
+    			  update : {method: 'PUT'} }
+    		);
+    	}
+
+    	function UsersJSON ($resource) { 
+    		let url = 'http://jsonplaceholder.typicode.com/users/:id';
+   
+    		return $resource(url, { id: '@id' }, {update: {method:'PUT'}});
     	}
 
 })();

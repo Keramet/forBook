@@ -6,7 +6,7 @@ describe("SendTFCtrl test: ", function () {
 
 	beforeEach( module('myApp') );
 
-	beforeEach( inject(function ($controller) {
+	beforeEach( inject( function ($controller) {
 		ctrl = $controller( 'sendTFCtrl' );
 	}) );
 
